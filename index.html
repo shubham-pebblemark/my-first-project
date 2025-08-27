@@ -1,137 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <title>Draggable Boxes</title>
+<head>
+  <meta charset="UTF-8" />
+  <title>Draggable Boxes</title>
+  <style>
+    @import url("https://fonts.googleapis.com/css2?family=Zeyada&display=swap");
+    body {
+      font-family: "Zeyada";
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-size: contain;
+      background-image: url(images/paper.png);
+      background-repeat: repeat;
+      overflow: hidden;
+    }
+    .box {
+      background-image: url(images/paper.png);
+      position: absolute;
+      cursor: grab;
+      border: 2px solid black;
+      padding: 30px 100px;
+      user-select: none;
+    }
+    img {
+      max-height: 200px;
+      width: 100%;
+      user-select: none;
+      pointer-events: none;
+    }
+    .box.image {
+      padding: 30px;
+    }
+    p {
+      font-family: "Zeyada";
+      font-size: 40px;
+      color: rgb(0, 0, 100);
+      opacity: 0.8;
+      user-select: none;
+      filter: drop-shadow(2px 1.5px 1px rgba(0, 0, 105, 0.9));
+      margin: 10px 0;
+      line-height: 1.2;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="box image">
+    <p>Love with You 😍</p>
+    <img src="images/images-4.jpg" />
+  </div>
+  <div class="box image">
+    <p>and I fallen in</p>
+    <img src="images/images-1.jpg" />
+  </div>
+  <div class="box image">
+    <p>Hello</p>
+    <img src="images/images-2.jpg" />
+  </div>
+  <div class="box image">
+    <p>How can be</p>
+    <p>someone so cute ❤️</p>
+    <img src="images/images-3.jpg" />
+  </div>
+  <div class="box">
+    <p>and My Favorite</p>
+    <p>Person 😍</p>
+  </div>
+  <div class="box">
+    <p>You are Cute</p>
+    <p>Amazing <span style="color: red">❤️</span></p>
+  </div>
+  <div class="box">
+    <p>Drag the papers to move!</p>
+  </div>
 
-        <style>
-            @import url("https://fonts.googleapis.com/css2?family=Zeyada&display=swap");
-            body {
-                font-family: "Zeyada";
-                height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background-size: 1000px;
-                background-image: url(images/paper.png);
-                background-size: contain;
-                background-repeat: repeat;
-            }
-            .box {
-                background-image: url(images/paper.png);
-                position: absolute;
-                cursor: grab;
-                border: 2px solid black;
-                padding: 30px 100px;
-                /* rotate: ; */
-            }
-            img {
-                max-height: 200px;
-                width: 100%;
-                user-select: none;
-            }
-            .box.image {
-                padding: 30px;
-            }
-            p {
-                font-family: "Zeyada";
-                font-size: 50px;
-                color: rgb(0, 0, 100);
-                opacity: 0.75;
-                user-select: none;
-                filter: drop-shadow(2px 1.5px 1px rgba(0, 0, 105, 0.9));
-                margin: 10px 0;
-                padding: 0;
-                line-height: 1.2;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="box image">
-         
-            <p>Love with You 😍</p>
-            <img src="images/images-4.jpg" />
-        </div>
-        <div class="box image">
-            <p>and I fallen in</p>
-       
-            <img src="images/images-1.jpg" />
-        </div>
+  <script>
+    let currentBox = null;
+    let offsetX = 0;
+    let offsetY = 0;
+    let topZIndex = 1;
 
-        <div class="box image">
-            <p>hello</p>
-            <img src="images/images-2.jpg" />
-        </div>
+    function startDrag(e, box) {
+      currentBox = box;
+      topZIndex++;
+      currentBox.style.zIndex = topZIndex;
 
-        <div class="box image">
-            <p>How can be</p>
-            <p>someone so cute ❤️</p>
+      let clientX = e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+      let clientY = e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
 
-            <img src="images/images-3.jpg" />
-        </div>
+      offsetX = clientX - box.offsetLeft;
+      offsetY = clientY - box.offsetTop;
 
-        <div class="box">
-            <p class="p1">and My Favorite</p>
-            <p class="p2">Person 😍</p>
-        </div>
+      currentBox.style.cursor = "grabbing";
+      e.preventDefault(); // Prevent scrolling on mobile while dragging
+    }
 
-        <div class="box">
-            <p class="p1">You are Cute</p>
-            <p class="p1">
-                Amazing <span style="color: red !important">❤️</span>
-            </p>
-        </div>
+    function onDrag(e) {
+      if (currentBox) {
+        let clientX = e.type.includes("touch") ? e.touches[0].clientX : e.clientX;
+        let clientY = e.type.includes("touch") ? e.touches[0].clientY : e.clientY;
 
-        <div class="box">
-            <p class="p1">Drag the papers to move!</p>
-        </div>
+        currentBox.style.left = clientX - offsetX + "px";
+        currentBox.style.top = clientY - offsetY + "px";
+      }
+    }
 
-        <script>
-            let currentBox = null;
-            let offsetX = 0;
-            let offsetY = 0;
-            let topZIndex = 1; // keep track of max z-index
+    function endDrag() {
+      if (currentBox) {
+        currentBox.style.cursor = "grab";
+        currentBox = null;
+      }
+    }
 
-            document.querySelectorAll(".box").forEach((box) => {
-                box.addEventListener("mousedown", (e) => {
-                    currentBox = box;
+    document.querySelectorAll(".box").forEach((box) => {
+      // Desktop
+      box.addEventListener("mousedown", (e) => startDrag(e, box));
+      // Mobile
+      box.addEventListener("touchstart", (e) => startDrag(e, box));
+    });
 
-                    // bring this box to the top
-                    topZIndex++;
-                    currentBox.style.zIndex = topZIndex;
+    // Desktop
+    document.addEventListener("mousemove", onDrag);
+    document.addEventListener("mouseup", endDrag);
 
-                    // calculate mouse offset inside the box
-                    offsetX = e.clientX - box.offsetLeft;
-                    offsetY = e.clientY - box.offsetTop;
+    // Mobile
+    document.addEventListener("touchmove", onDrag);
+    document.addEventListener("touchend", endDrag);
 
-                    // change cursor
-                    currentBox.style.cursor = "grabbing";
-                });
-            });
-
-            document.addEventListener("mousemove", (e) => {
-                if (currentBox) {
-                    currentBox.style.left = e.clientX - offsetX + "px";
-                    currentBox.style.top = e.clientY - offsetY + "px";
-                }
-            });
-
-            document.addEventListener("mouseup", () => {
-                if (currentBox) {
-                    currentBox.style.cursor = "grab";
-                    currentBox = null;
-                }
-            });
-
-            const boxes = document.querySelectorAll(".box");
-
-            // Center all boxes in the viewport with random rotation
-            boxes.forEach((box) => {
-                // Random rotation between 15 and 30 degrees, positive or negative
-                let angle =
-                    (Math.random() * 2 + 2) * (Math.random() < 0.5 ? -1 : 1);
-                box.style.transform = `rotate(${angle}deg)`;
-            });
-        </script>
-    </body>
+    // Random rotation
+    document.querySelectorAll(".box").forEach((box) => {
+      let angle = (Math.random() * 2 + 2) * (Math.random() < 0.5 ? -1 : 1);
+      box.style.transform = `rotate(${angle}deg)`;
+    });
+  </script>
+</body>
 </html>
